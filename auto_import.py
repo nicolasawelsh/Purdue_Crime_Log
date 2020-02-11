@@ -14,25 +14,54 @@ def main():
         i = item.prettify()
         raw_li.append(i.splitlines())
     
-    filtered_li = []
+    li = []
     for item in raw_li:
-        if len(item) >= 4:
-            if 'REPORTED' in item[3]:
-                if '<p>' in item: item.remove('<p>')
-                if '</p>' in item: item.remove('</p>')
-                if ' <br/>' in item: item.remove(' <br/>')
-                if ' <br/>' in item: item.remove(' <br/>')
+        if len(item) == 7:
+            handle_inconsistency(item)
+        
 
-                x = item[-1].split(".\xa0")
-                item.pop(-1)
-                for i in x:
-                    item.append(i)
-                if 'CAD' in item[0]:
-                    item[0] = item[0].replace("CAD# ","")
-                    item[0] = item[0].replace("-","")
+def handle_inconsistency(li):
+    # Likely incomprehenisble if doesn't include 'REPORTED'
+    if 'REPORTED' in li[3]:
+        # Remove HTML tags
+        if '<p>' in li: li.remove('<p>')
+        if '</p>' in li: li.remove('</p>')
+        while ' <br/>' in li:
+            li.remove(' <br/>')
 
-                filtered_li.append(item)
-                print(item)
+        # Handle inconsistencies in ind: 0
+        if 'CAD' in li[0]:
+            li[0] = li[0].replace("CAD", "")
+            li[0] = li[0].replace("#", "")
+            li[0] = li[0].replace(" ", "")
+            li[0] = li[0].replace("-", "")
+        if 'CSA' in li[0]:
+            li[0] = -1
+
+        # Convert CAD# str to int
+        li[0] = int(li[0])
+
+        # Temporarily remove description
+        descr = li[-1]
+        li.pop(-1)
+
+        # Handle inconsistencies in ind: 1
+        li[1] = li[1].replace("REPORTED", "")
+        li[1] = li[1].replace(" ", "")
+        if 'DATE' in li[1]:
+            li[1] = li[1].replace("DATE", "")
+
+        x = li[1].split(",")
+        li.pop(1)
+        for i in x:
+            li.append(i)
+
+        if len(li) == 3:
+            li.append(descr) # Add description back on
+            li.append(li)
+            print(li)
+
+#def handle_description(li):
 
 if __name__ == '__main__':
     main()
