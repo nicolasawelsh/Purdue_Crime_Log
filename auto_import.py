@@ -1,4 +1,5 @@
 import requests
+import csv
 from bs4 import BeautifulSoup
 
 def main():
@@ -16,10 +17,12 @@ def main():
     
     li = []
     li = handle_filtering(li, raw_li)
-    
-
-    for elem in li:
-        print(elem)
+    li.sort(key=lambda x: x[0])
+    #for elem in li:
+        #print(elem)
+    with open("out.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerows(li)
 
 def handle_filtering(li, raw_li):
     for item in raw_li:
@@ -63,7 +66,7 @@ def handle_filtering(li, raw_li):
 
                 if len(item) == 5:
                     li.append(item)
-                    
+
     return li
 
 def handle_description(desc):
@@ -124,6 +127,8 @@ def handle_description(desc):
     smart_desc.append(status)
 
     return smart_desc
+
+
 
 
 if __name__ == '__main__':
