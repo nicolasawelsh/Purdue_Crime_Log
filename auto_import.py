@@ -16,7 +16,6 @@ def main():
     
     li = []
     li = handle_filtering(li, raw_li)
-    li.sort(key=lambda x: x[0])
     #for elem in li:
         #print(elem)
     with open("out.csv", "w", newline="") as f:
