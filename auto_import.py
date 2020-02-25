@@ -2,11 +2,10 @@ import requests
 import csv
 from bs4 import BeautifulSoup
 
+
 def main():
     # Purdue Police Department 'Daily Crime Log'
     page = requests.get('https://www.purdue.edu/ehps/police/assistance/stats/statsdaily.html')
-    #print("result code: " + str(web_url.getcode()))
-    #data = web_url.read()
     soup = BeautifulSoup(page.text, 'html.parser')
     soup_text = soup.find_all("p")
 
@@ -24,6 +23,7 @@ def main():
         writer = csv.writer(f)
         writer.writerows(li)
 
+
 def handle_filtering(li, raw_li):
     for item in raw_li:
         if len(item) == 7:
@@ -34,7 +34,10 @@ def handle_filtering(li, raw_li):
                 while ' <br/>' in item:
                     item.remove(' <br/>')
 
-                # Handle inconsistencies in ind: 0
+                # Handle inconsistencies in ind: 0 (will need updated with time)
+                if 'WLPD' in item[0]:
+                    item[0] = item[0].replace("WLPD", "")
+                    item[0] = item[0].replace(" ", "")
                 if 'CAD' in item[0]:
                     item[0] = item[0].replace("CAD", "")
                     item[0] = item[0].replace("#", "")
@@ -59,17 +62,18 @@ def handle_filtering(li, raw_li):
                 for i in x:
                     item.append(i)
 
-
                 smart_desc = handle_description(desc)
                 for i in smart_desc:
                     item.append(i)
 
                 if len(item) == 5:
                     li.append(item)
-
     return li
 
+
 def handle_description(desc):
+    # Hard coded crimes and status (will need updated with time)
+
     smart_desc = []
 
     if 'THEFT' in desc:
@@ -98,8 +102,14 @@ def handle_description(desc):
         crime = 'SEX OFFENSE'
     elif 'BURGLARY' in desc:
         crime = 'BURGLARY'
+    elif 'INTIMIDATION' in desc:
+        crime = 'INTIMIDATION'
+    elif 'THREATS' in desc:
+        crime = 'THREATS'
+    elif 'HARASSMENT' in desc:
+        crime = 'HARASSMENT'
     else:
-        crime = 'OTHER'
+        crime = 'OTHER CRIME'
 
     smart_desc.append(crime)
 
@@ -122,13 +132,11 @@ def handle_description(desc):
     elif 'PENDING PROSECUTOR REVIEW' in desc:
         status = 'PENDING PROSECUTOR REVIEW'
     else:
-        status = 'OTHER'
+        status = 'OTHER STATUS'
     
     smart_desc.append(status)
 
     return smart_desc
-
-
 
 
 if __name__ == '__main__':
